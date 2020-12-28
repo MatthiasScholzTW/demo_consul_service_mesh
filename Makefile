@@ -24,19 +24,19 @@ logs:
 
 
 consul: logs
-	consul agent -dev -config-dir=./consul.d -node=machine > ./logs/consul.log 2>&1 &
+	consul agent -dev -config-dir=./consul.d -node=machine > ./logs/$@.log 2>&1 &
 
 service: logs
 	socat -v tcp-l:$(service_port),fork exec:"/bin/cat"  > ./logs/service_$(service_name).log 2>&1 &
 
 service-sidecar-socat: logs
-	consul connect proxy -sidecar-for $(service_name)  > ./logs/sidecar_$(service_name).log 2>&1 &
+	consul connect proxy -sidecar-for $(service_name)  > ./logs/$@.log 2>&1 &
 
 service-sidecar-socat-envoy: logs
 	consul connect envoy -sidecar-for $(service_name) -admin-bind localhost:19001
 
 service-sidecar-web: logs
-	consul connect proxy -sidecar-for $(service_user_name)  > ./logs/sidecar_$(service_user_name).log 2>&1 &
+	consul connect proxy -sidecar-for $(service_user_name)  > ./logs/$@.log 2>&1 &
 
 service-sidecar-web-envoy: logs
 	consul connect envoy -sidecar-for $(service_user_name)
