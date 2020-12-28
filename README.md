@@ -98,13 +98,11 @@ NOTE 2020-12-28: Changing intentions will _not_ affect existing connections!
 
 ## Envoy
 
-![Sidecar Configuration](https://learn.hashicorp.com/img/consul/connect-getting-started/consul_connect_demo_service_flow.png)
-
-### Configuration
-
 Consul provides first class support for Envoy.
 The only modification to be done is
 to start the sidecar proxy using Envoy instead of the integrate Consul proxy.
+
+### Configuration
 
 Run the following commands in separate terminals:
 
