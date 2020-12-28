@@ -36,14 +36,26 @@ This is because Consul Connect service mesh allows you to chose the proxy you'd 
 Consul comes with a L4 proxy for testing purposes,
 and first-class support for Envoy,
 which you should use for production deployments and layer 7 traffic management.
+The Consul L4 proxy doesn't have the L7 capabilities necessary
+for the observability and traffic shaping features
+available in Consul versions 1.5 and higher.
 
 Use to start the Consul included L4 proxy sidecar:
 - `make service-sidecar-socat`
+
+NOTE: The `-sidecar-for` argument takes a Consul service ID, _not a service name_.
 
 #### Downstream Service - nc
 
 Register downstream service using [web.json](./consul.d/web.json).
 It specifies web's upstream dependency on socat, and the port that the proxy will listen on.
+
+The definition includes an upstream block.
+Upstreams are ports on the local host
+that will be proxied to the destination service.
+The upstream block's local_bind_port value is the port your service
+will communicate with to reach the service you depend on.
+
 It registers a sidecar proxy for the service web
 that will listen on port 9191
 to establish mTLS connections to socat.
@@ -92,6 +104,12 @@ NOTE 2020-12-28: Changing intentions will _not_ affect existing connections!
 
 ## Observability
 
+Starting with version 1.5,
+Consul is able to configure Envoy proxies
+to collect L7 metrics including HTTP status codes and request latency,
+along with many others, and
+export those to monitoring tools like Prometheus.
+
 - https://www.consul.io/docs/connect/observability/ui-visualization
 
 ## Remarks
@@ -122,7 +140,7 @@ Only supports tcp. No support for tls.
 - https://learn.hashicorp.com/tutorials/consul/get-started-service-networking
 - https://learn.hashicorp.com/tutorials/consul/service-mesh
 - https://learn.hashicorp.com/tutorials/consul/service-mesh-production-checklist
-- https://learn.hashicorp.com/collections/consul/interactive
+- https://learn.hashicorp.com/tutorials/consul/service-mesh-with-envoy-proxy?in=consul/developer-mesh
 
 
 ## Questions
