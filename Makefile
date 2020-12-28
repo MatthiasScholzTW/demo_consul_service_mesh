@@ -50,6 +50,9 @@ stop:
 	killall socat
 	killall envoy
 
+reload:
+	consul reload
+
 status:
 	@echo "INFO :: Listing the processes"
 	ps -a | grep consul
@@ -57,6 +60,13 @@ status:
 	ps -a | grep $(service_name)
 	ps -a | grep $(service_user_name)
 
+register-services:
+	@echo "INFO :: Register the services"
+	consul services register ./consul.d/socat.hcl
+	consul services register ./consul.d/web.hcl
+	@echo "INFO :: Verify service registration"
+	consul catalog services | ag $(service_name)
+	consul catalog services | ag $(service_user_name)
 
 intention-allow:
 	@echo "INFO :: Creation of an intetion to allow traffic."
