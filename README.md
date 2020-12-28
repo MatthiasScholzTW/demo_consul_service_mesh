@@ -148,11 +148,10 @@ Only supports tcp. No support for tls.
 
 ## References
 
-- https://learn.hashicorp.com/tutorials/consul/get-started-service-networking
-- https://learn.hashicorp.com/tutorials/consul/service-mesh
-- https://learn.hashicorp.com/tutorials/consul/service-mesh-production-checklist
-- https://learn.hashicorp.com/tutorials/consul/service-mesh-with-envoy-proxy?in=consul/developer-mesh
-
+- [HashiCorp Learn: Connect Services with Consul Service Mesh](https://learn.hashicorp.com/tutorials/consul/get-started-service-networking)
+- [HashiCorp Learn: Understand Consul Service Mesh](https://learn.hashicorp.com/tutorials/consul/service-mesh)
+- [HashiCorp Learn: Consul Connect Service Mesh in Production](https://learn.hashicorp.com/tutorials/consul/service-mesh-production-checklist)
+- [HashiCorp Learn: Secure Service Communication with Consul Service Mesh and Envoy](https://learn.hashicorp.com/tutorials/consul/service-mesh-with-envoy-proxy?in=consul/developer-mesh)
 
 ## Questions
 
