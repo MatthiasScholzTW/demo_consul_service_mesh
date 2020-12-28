@@ -100,6 +100,17 @@ NOTE 2020-12-28: Changing intentions will _not_ affect existing connections!
 
 ![Sidecar Configuration](https://learn.hashicorp.com/img/consul/connect-getting-started/consul_connect_demo_service_flow.png)
 
+### Configuration
+
+Consul provides first class support for Envoy.
+The only modification to be done is
+to start the sidecar proxy using Envoy instead of the integrate Consul proxy.
+
+Run the following commands in separate terminals:
+
+1. Starting the envoy sidecar: `make service-sidecare-socar-envoy`
+1. Starting the envoy sidecar: `make service-sidecare-web-envoy`
+1. Testing the connection: `make test-service-mesh`
 
 
 ## Observability
