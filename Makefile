@@ -1,7 +1,7 @@
 service_name := socat
 service_port := 8181
-service_sidecar_name := web
-service_sidecar_port := 9191
+service_user_name := web
+service_user_port := 9191
 
 setup:
 	@echo "INFO :: Installing consul and socat locally!"
@@ -11,42 +11,49 @@ setup:
 cleanup:
 	@echo "INFO :: Removing consul and socat from the local machine."
 	brew uninstall consul
-	brew uinstall socat
+	brew uninstall socat
+	rm -rf ./logs
 
-consul:
-	consul agent -dev -config-dir=./consul.d -node=machine
+logs:
+	mkdir -p ./logs
 
-consul-reload:
-	consul reload
 
-service:
-	socat -v tcp-l:$(service_port),fork exec:"/bin/cat"
+consul: logs
+	consul agent -dev -config-dir=./consul.d -node=machine > ./logs/consul.log 2>&1 &
 
-service-sidecar-socat:
-	consul connect proxy -sidecar-for $(service_name)
+service: logs
+	socat -v tcp-l:$(service_port),fork exec:"/bin/cat"  > ./logs/service_$(service_name).log 2>&1 &
 
-service-sidecar-web:
-	consul connect proxy -sidecar-for $(service_sidecar_name)
+service-sidecar-socat: logs
+	consul connect proxy -sidecar-for $(service_name)  > ./logs/sidecar_$(service_name).log 2>&1 &
 
-service-connect-local-dev:
-	@echo "INFO :: Start local 'web' service representation for service $(service_name) and provide a MTLS connection on port $(service_sidecar_port) using Consul service discovery."
-	@echo "INFO :: This functionality is covered by the consul service configuration in ./consul.d/web.json."
-	consul connect proxy -service $(service_sidecar_name) -upstream $(service_name):$(service_sidecar_port)
+service-sidecar-web: logs
+	consul connect proxy -sidecar-for $(service_user_name)  > ./logs/sidecar_$(service_user_name).log 2>&1 &
+
+
+start: consul service service-sidecar-socat service-sidecar-web
+	@echo "INFO :: Consul Service Mesh started. Use 'make test-service-mesh' to check the setup."
+
+stop:
+	@echo "INFO :: Terminating all Consul and socat processes."
+	killall consul
+	killall socat
+
 
 intention-deny:
 	@echo "INFO :: Creation of an intetion to deny traffic."
-	consul intention create -deny $(service_sidecar_name) $(service_name)
+	consul intention create -deny $(service_user_name) $(service_name)
 
 intention-delete:
 	@echo "INFO :: Deletion of the intention to allow traffic."
-	consul intention delete $(service_sidecar_name) $(service_name)
+	consul intention delete $(service_user_name) $(service_name)
 
-test:
+test-service:
 	@echo "INFO :: Usage: Text send should be echoed back."
 	nc 127.0.0.1 $(service_port)
 
-test-encryption:
-	nc 127.0.0.1 $(service_sidecar_port)
+test-service-mesh:
+	nc 127.0.0.1 $(service_user_port)
 
 doc:
 	@echo "INFO :: Installing diagram creation dependencies locally!"
