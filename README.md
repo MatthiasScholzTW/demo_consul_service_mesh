@@ -112,6 +112,64 @@ Run the following commands in separate terminals:
 1. Starting the envoy sidecar: `make service-sidecare-web-envoy`
 1. Testing the connection: `make test-service-mesh`
 
+## Mesh Gateways - Across Datacenters
+
+Use mesh gateways to enable inter-datacenter service communication.
+
+Mesh gateways, which connect services in different datacenters,
+take advantage of Server Name Indication (SNI) – a TLS extension –
+to inspect the destination of a connection and
+route to a remote datacenter without decrypting the payload.
+
+Use Envoy as the sidecar proxies and mesh gateways.
+
+You should `set enable_central_service_config = true`
+on your Consul clients
+which will allow them to
+centrally configure the sidecar and mesh gateway proxies.
+
+### Prerequisites
+
+Need two wide area network (WAN) joined Consul datacenters
+with _access control list (ACL) replication_ enabled.
+
+- [Securing Consul with ACLs](https://learn.hashicorp.com/tutorials/consul/access-control-setup-production)
+- [ACL Replication for Multiple Datacenters](https://learn.hashicorp.com/tutorials/consul/access-control-replication-multiple-datacenters)
+- [Basic Federation with WAN Gossip](https://learn.hashicorp.com/tutorials/consul/federation-gossip-wan)
+  - [Create Replication token for ACL management](https://learn.hashicorp.com/tutorials/consul/access-control-replication-multiple-datacenters#create-the-replication-token-for-acl-management)
+
+Enable Consul service mesh in both datacenters.
+
+### Setup
+
+### Mesh Gateway Node
+
+Need to deploy your mesh gateways on nodes
+that can reach each other over the network.
+
+Need to make sure that _both Envoy and Consul_
+are installed on the mesh gateway nodes.
+
+You won't necessarily want to run any services
+on these nodes other than Consul and Envoy.
+
+You will need to _generate a token_
+for each mesh gateway
+that gives it read access to the entire catalog.
+
+When configuring your mesh gateways,
+you will need to set the advertise address
+for the service
+to be reachable both locally and remotely.
+
+Configure sidecar proxies to use the mesh gateways.
+Create a proxy-defaults centralized configuration file
+for all the sidecar proxies in both datacenters.
+
+In one datacenter register a back end service and
+add a sidecar proxy registration.
+If you have ACLs enabled,
+you first need to create a token for the service.
 
 ## Observability
 
@@ -152,6 +210,7 @@ Only supports tcp. No support for tls.
 - [HashiCorp Learn: Understand Consul Service Mesh](https://learn.hashicorp.com/tutorials/consul/service-mesh)
 - [HashiCorp Learn: Consul Connect Service Mesh in Production](https://learn.hashicorp.com/tutorials/consul/service-mesh-production-checklist)
 - [HashiCorp Learn: Secure Service Communication with Consul Service Mesh and Envoy](https://learn.hashicorp.com/tutorials/consul/service-mesh-with-envoy-proxy?in=consul/developer-mesh)
+- [HashiCorp Learn: Connect Services Across Datacenters with Mesh Gateways](https://learn.hashicorp.com/tutorials/consul/service-mesh-gateways?in=consul/developer-mesh)
 
 ## Questions
 
