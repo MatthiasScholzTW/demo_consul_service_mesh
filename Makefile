@@ -41,7 +41,7 @@ service-sidecar-web: logs
 service-sidecar-web-envoy: logs
 	consul connect envoy -sidecar-for $(service_user_name)
 
-start: consul service service-sidecar-socat service-sidecar-web
+start: consul service service-sidecar-socat service-sidecar-web intention-allow
 	@echo "INFO :: Consul Service Mesh started. Use 'make test-service-mesh' to check the setup."
 
 stop:
@@ -56,6 +56,11 @@ status:
 	ps -a | grep envoy
 	ps -a | grep $(service_name)
 	ps -a | grep $(service_user_name)
+
+
+intention-allow:
+	@echo "INFO :: Creation of an intetion to allow traffic."
+	consul intention create $(service_user_name) $(service_name)
 
 intention-deny:
 	@echo "INFO :: Creation of an intetion to deny traffic."
