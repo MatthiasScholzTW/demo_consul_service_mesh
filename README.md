@@ -84,6 +84,12 @@ In the development mode by default all is allowed.
 NOTE 2020-12-28: Changing intentions will _not_ affect existing connections!
 -> Will be addressed in a future version of consul.
 
+## Envoy
+
+![Sidecar Configuration](https://learn.hashicorp.com/img/consul/connect-getting-started/consul_connect_demo_service_flow.png)
+
+
+
 ## Observability
 
 - https://www.consul.io/docs/connect/observability/ui-visualization
