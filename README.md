@@ -19,10 +19,16 @@ Run the following commands in separate terminals:
 
 #### Upstream Service - socat
 
-Register sidecar process for the service in [socat.json](./consul.d/socat.json):
+Register sidecar process for the service in [socat.hcl](./consul.d/socat.hcl):
 
-```json
-{ ... "connect": { "sidecar_service": {} } }
+```hcl
+service {
+  # ...
+  connect {
+    sidecar_service {}
+  }
+  # ...
+}
 ```
 This empty configuration notifies Consul to register a sidecar proxy
 for this process on a dynamically allocated port.
@@ -47,7 +53,7 @@ NOTE: The `-sidecar-for` argument takes a Consul service ID, _not a service name
 
 #### Downstream Service - nc
 
-Register downstream service using [web.json](./consul.d/web.json).
+Register downstream service using [web.hcl](./consul.d/web.hcl).
 It specifies web's upstream dependency on socat, and the port that the proxy will listen on.
 
 The definition includes an upstream block.
@@ -200,7 +206,7 @@ you can use tools like network namespacing.
 ### Socat
 
 Only supports tcp. No support for tls.
-
+Hence perfect tool to test the tls functionality of the Consul Service Mesh.
 
 ## References
 
