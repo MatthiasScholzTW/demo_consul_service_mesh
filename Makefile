@@ -83,13 +83,26 @@ intention-delete:
 	@echo "INFO :: Deletion of the intention to allow traffic."
 	consul intention delete $(service_user_name) $(service_name)
 
+service_log := "./logs/service_socat.log"
+test_string := "SomeTestString"
+
 test-service:
 	@echo "INFO :: Usage: Text send should be echoed back."
-	nc 127.0.0.1 $(service_port)
+	@echo "INFO :: .Testing connection"
+	@nc -z 127.0.0.1 $(service_port)
+	@echo "INFO :: .Testing sending some data: '$(test_string)'"
+	@echo $(test_string) | nc 127.0.0.1 $(service_port)
+	@grep $(test_string) $(service_log) > /dev/null || ( echo "ERROR :: test data not transmitted" && exit 1 )
+	@echo "INFO :: Test succeeded."
 
 test-service-mesh:
 	@echo "INFO :: Starting netcat to communicate using the Consul Service Mesh"
-	nc 127.0.0.1 $(service_user_port)
+	@echo "INFO :: .Testing connection"
+	@nc -z 127.0.0.1 $(service_user_port)
+	@echo "INFO :: .Testing sending some data: '$(test_string)'"
+	@echo $(test_string) | nc 127.0.0.1 $(service_user_port)
+	@grep $(test_string) $(service_log) > /dev/null || ( echo "ERROR :: test data not transmitted" && exit 1 )
+	@echo "INFO :: Test succeeded."
 
 doc:
 	@echo "INFO :: Installing diagram creation dependencies locally!"
