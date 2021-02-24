@@ -23,8 +23,11 @@ logs:
 	mkdir -p ./logs
 
 
+# NOTE: Consul Connect is enabled by default when using "-dev" mode.
 consul: logs
 	consul agent -dev -config-dir=./consul.d -node=machine > ./logs/$@.log 2>&1 &
+	@echo "INFO :: Giving Consul some time to start up."
+	sleep 2
 
 service: logs
 	socat -v tcp-l:$(service_port),fork exec:"/bin/cat" > ./logs/$@_$(service_name).log 2>&1 &
@@ -33,7 +36,7 @@ service-sidecar-socat: logs
 	consul connect proxy -sidecar-for $(service_name)  > ./logs/$@.log 2>&1 &
 
 service-sidecar-socat-envoy: logs
-	consul connect envoy -sidecar-for $(service_name) -admin-bind localhost:19001
+	consul connect envo y -sidecar-for $(service_name) -admin-bind localhost:19001
 
 service-sidecar-web: logs
 	consul connect proxy -sidecar-for $(service_user_name)  > ./logs/$@.log 2>&1 &
@@ -85,6 +88,7 @@ test-service:
 	nc 127.0.0.1 $(service_port)
 
 test-service-mesh:
+	@echo "INFO :: Starting netcat to communicate using the Consul Service Mesh"
 	nc 127.0.0.1 $(service_user_port)
 
 doc:
