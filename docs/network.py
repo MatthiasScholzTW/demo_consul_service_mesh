@@ -21,33 +21,34 @@ graph_attr = {
 
 with Diagram(name="Consul Service Mesh", filename=diagram_path, graph_attr=graph_attr, direction="LR", show=True):
 
-    metrics = Prometheus()
-    scrape = Edge(label="scrape", style="dashed")
+    #metrics = Prometheus()
+    #scrape = Edge(label="scrape", style="dashed")
 
     with Cluster("Service Mesh"):
 
-        with Cluster("Downstream Service"):
-            user = Rack("nc")
-            sidecar_user = Router("sidecar proxy")
-
         with Cluster("Upstream Service"):
-            sidecar_service = Router("sidecar proxy")
-            service = Rack("socat")
+            upstream = Rack("nc")
+            sidecar_upstream = Router("sidecar proxy: 9191")
+
+        with Cluster("Downstream Service"):
+            downstream = Rack("socat: 8181")
+            sidecar_downstream = Router("sidecar proxy: 9191")
 
         mtls = Edge(label="mtls", color="green")
         plain = Edge(label="unencrypted", color="yellow")
 
         # Service Mesh Communication
-        user >> plain >> sidecar_user >> mtls >> sidecar_service >> plain >> service
+        upstream >> plain >> sidecar_upstream >> mtls >> sidecar_downstream >> plain >> downstream
 
         # Consul Service Registration
         consul = Consul()
         register = Edge(label="register", style="dashed")
-        consul - register - service
-        sidecar_user >> register >> consul
-        sidecar_service >> register >> consul
+        consul - register - upstream
+        consul - register - downstream
+        sidecar_upstream >> register >> consul
+        sidecar_downstream >> register >> consul
 
         # Observability
-        metrics >> scrape >> sidecar_user
-        metrics >> scrape >> sidecar_service
+        #metrics >> scrape >> sidecar_upstream
+        #metrics >> scrape >> sidecar_downstream
         #metrics >> scrape >> consul

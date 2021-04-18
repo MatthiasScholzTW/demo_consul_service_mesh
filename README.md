@@ -7,7 +7,7 @@ Learning Consul Connect and applying it.
 Run the following commands in separate terminals:
 
 1. Install prerequisites: `make setup`
-1. Start consul, upstream service, downstream service: `make start`
+1. Start consul, downstream service, upstream service: `make start`
    - Logs are stored in the [folder](./logs/).
 1. Test the service mesh: `make test-service-mesh`
 
@@ -19,7 +19,7 @@ Run the following commands in separate terminals:
 
 #### Upstream Service - socat
 
-Register sidecar process for the service in [socat.hcl](./consul.d/socat.hcl):
+Register sidecar process for the service in [upstream.hcl](./consul.d/upstream.hcl):
 
 ```hcl
 service {
@@ -47,19 +47,19 @@ for the observability and traffic shaping features
 available in Consul versions 1.5 and higher.
 
 Use to start the Consul included L4 proxy sidecar:
-- `make service-sidecar-socat`
+- `make upstream-sidecar`
 
 NOTE: The `-sidecar-for` argument takes a Consul service ID, _not a service name_.
 
 #### Downstream Service - nc
 
-Register downstream service using [web.hcl](./consul.d/web.hcl).
-It specifies web's upstream dependency on socat, and the port that the proxy will listen on.
+Register downstream service using [downstream.hcl](./consul.d/downstream.hcl).
+It specifies downstream dependency on socat, and the port that the proxy will listen on.
 
-The definition includes an upstream block.
-Upstreams are ports on the local host
+The definition includes an downstream block.
+Downstreams are ports on the local host
 that will be proxied to the destination service.
-The upstream block's local_bind_port value is the port your service
+The downstream block's local_bind_port value is the port your service
 will communicate with to reach the service you depend on.
 
 It registers a sidecar proxy for the service web
@@ -68,7 +68,7 @@ to establish mTLS connections to socat.
 
 This will not start the sidecar, but only informs consul about its existence.
 Use:
-- `make service-sidecar-web`
+- `make downstream-sidecar`
 to start the sidecar proxy.
 
 If we were running a real web service it would talk to its proxy on a loopback address.
@@ -85,10 +85,14 @@ you will pretend to be the web service by
 talking to its proxy on the port that we specified (9191).
 
 In production,
-_services should only accept loopback connections_.
+_services should only accept loopback connections**.
 Any traffic in and out of the machine
 should travel through the proxies and
 therefore would always be encrypted.
+
+## Testing
+
+- https://www.consul.io/api-docs/health#list-nodes-for-connect-capable-service
 
 ## Intentions
 
@@ -218,7 +222,9 @@ Hence perfect tool to test the tls functionality of the Consul Service Mesh.
 
 ## Questions
 
-### Why are there two sidecars: sidecar-socat and sidecar-web?
+### Why are there two sidecars?
 
-1. _sidecar-socat_ represents the upstream service
-1. _sidecar-web_ simulates a dependent downstream service using `nc`.
+The upstream services are the ones that consume the downstream service.
+
+1. _sidecar: upstream_ represents the upstream service - it receives requests and response to them.
+1. _sidecar: downstream_ simulates a dependent downstream service using `nc`. - which send request to the upstream service.

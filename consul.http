@@ -1,0 +1,19 @@
+# -*- restclient -*-
+# Emacs Commands:
+# - C-c C-v - execute and keep focus
+# - C-c C-g - start helm session
+# - C-c C-n|p - jump to next | previous query
+#
+# SEE:
+# - https://github.com/pashky/restclient.el
+# - https://jakemccrary.com/blog/2014/07/04/using-emacs-to-explore-an-http-api/
+##############################################################################
+:consul = http://localhost:8500/v1
+
+# Consul Connect Service Health: upstream
+GET :consul/health/connect/upstream
+User-Agent: Emacs Restclient
+
+# Consul Connect Services Health: downstream
+GET :consul/health/connect/downstream
+User-Agent: Emacs Restclient
